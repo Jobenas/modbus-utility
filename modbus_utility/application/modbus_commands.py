@@ -61,7 +61,8 @@ def select_device(port: str, address: int, baudrate: int = 9600, parity: str = '
 def read_register(
         register: int,
         num_registers: int = 1,
-        show_frame_info: bool = False
+        show_frame_info: bool = False,
+        display_hex: bool = True,
 ):
     """Read register(s) from the selected MODBUS device."""
     session = load_session()
@@ -115,7 +116,10 @@ def read_register(
         values = struct.unpack(f'>{num_registers}H', response[3:3 + 2 * num_registers])
         table = Table("[bold blue]REGISTER", "[bold green]VALUE")
         for i, value in enumerate(values):
-            table.add_row(f"[bold blue]{register + i}", f"[bold green]{value}")
+            table.add_row(
+                f"[bold blue]{register + i}",
+                f"[bold green]{value if not display_hex else hex(value)}"
+            )
         console.print(table)
         # print(f"Register {register}: {values}")
         logging.info(f"Read register {register} with value: {values}")
@@ -190,5 +194,5 @@ def list_ports():
 
 def info():
     """List the software's version information"""
-    print("[bold blue]Modbus Utility v0.1")
+    print("[bold blue]Modbus Utility v0.1.1")
     print("[bold green]Developed by EAT Team")

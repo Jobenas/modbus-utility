@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "modbus-utility"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["jobenas <jobenas@energyatech.com>"]
 readme = "README.md"

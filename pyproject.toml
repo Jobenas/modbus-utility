@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "modbus-utility"
-version = "0.1.1"
+version = "0.2.0"
 description = ""
 authors = ["jobenas <jobenas@energyatech.com>"]
 readme = "README.md"
@@ -10,9 +10,10 @@ modbus-utility = "modbus_utility.main:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-typer = "^0.12.5"
+typer = "^0.15.1"
 pyserial = "^3.5"
 pydantic = "^2.9.2"
+ruff = "^0.8.3"
 
 
 [build-system]

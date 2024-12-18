@@ -6,13 +6,11 @@ import serial.tools.list_ports
 device_address = None
 
 
-def initialize_device(port: str, baudrate: int, parity: str, stopbits: int, timeout: float) -> serial.Serial:
+def initialize_device(
+    port: str, baudrate: int, parity: str, stopbits: int, timeout: float
+) -> serial.Serial:
     ser = serial.Serial(
-        port=port,
-        baudrate=baudrate,
-        parity=parity,
-        stopbits=stopbits,
-        timeout=timeout
+        port=port, baudrate=baudrate, parity=parity, stopbits=stopbits, timeout=timeout
     )
     logging.info(f"Initialized device on port {port}")
 
@@ -35,3 +33,15 @@ def calculate_crc(data: bytes) -> int:
 def list_serial_ports():
     ports = serial.tools.list_ports.comports()
     return ports
+
+
+def read_bus(num_bytes: int, ser: serial.Serial) -> bytes:
+    """
+    Read specified number of bytes from the bus
+    :param num_bytes: number of bytes to read
+    :param ser: serial object
+    :return: byte stream read from the bus
+    """
+    response = ser.read(num_bytes)
+
+    return response

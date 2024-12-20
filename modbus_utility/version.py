@@ -1,3 +1,4 @@
+from rich.console import Console
 import typer
 
 from modbus_utility.utils.console_utils import (
@@ -8,12 +9,13 @@ from modbus_utility.utils.console_utils import (
 )
 
 app = typer.Typer()
+console = Console()
 
 
 @app.command()
 def version():
     """List the software's version information"""
-    print(
+    console.print(
         format_text_element(
             TextElement(
                 value="Modbus Utility v0.2.0",
@@ -21,7 +23,7 @@ def version():
             )
         )
     )
-    print(
+    console.print(
         format_text_element(
             TextElement(
                 value="Developed by EAT Team",

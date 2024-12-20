@@ -6,7 +6,6 @@ class TextColors:
     """
     Represents a set of text colors
     """
-
     BLACK = "black"
     RED = "red"
     GREEN = "green"

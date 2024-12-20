@@ -29,7 +29,7 @@ def list_ports():
     """List all available serial ports."""
     ports = list_serial_ports()
     if ports:
-        print("[bold magenta]Available serial ports:")
+        console.print("[bold magenta]Available serial ports:")
 
         table = generate_table(
             [TextElement(value="PORT"), TextElement(value="DESCRIPTION")],
@@ -50,7 +50,7 @@ def list_ports():
 
         console.print(table)
     else:
-        print(f"{format_text_element(
+        console.print(f"{format_text_element(
             TextElement(
                 value="No serial ports found.", 
                 format=TextFormat(color=TextColors.RED, bold=True)

@@ -28,7 +28,7 @@ def read_register(
     """Read register(s) from the selected MODBUS device."""
     session = load_session(DeviceConfigType.master)
     if session is None:
-        print(
+        console.print(
             f"{format_text_element(
             TextElement(
                 value="No device selected. Use 'select-device' first.",

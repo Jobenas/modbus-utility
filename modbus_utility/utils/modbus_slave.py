@@ -1,12 +1,16 @@
 import logging
 import time
 
+from rich.console import Console
 import serial
 import typer
 
 from modbus_utility.physical.modbus_serial import initialize_device, calculate_crc
 
 from modbus_utility.utils.console_utils import format_text_element, TextElement, TextFormat, TextColors
+
+
+console = Console()
 
 
 class ModbusSlave:
@@ -31,14 +35,14 @@ class ModbusSlave:
 		try:
 			self.ser = initialize_device(port, baudrate, parity, stop_bits, timeout)
 		except serial.SerialException:
-			print(f"{format_text_element(
+			console.print(f"{format_text_element(
 				TextElement(
 					value="Failed to initialize serial device", 
 					format=TextFormat(color=TextColors.RED,bold=True)
 				)
 			)}")
 			logging.error("Failed to initialize serial device")
-			raise typer.exit()
+			raise typer.Exit()
 
 		self.slave_address = slave_address
 
@@ -51,7 +55,7 @@ class ModbusSlave:
 		try:
 			self.ser.write(request)
 		except serial.SerialException:
-			print(
+			console.print(
 				f"{format_text_element(TextElement(value='Failed to send request.', format=TextFormat(color=TextColors.RED, bold=False)))}"
 			)
 			logging.error("Failed to write to the serial port")
@@ -67,7 +71,7 @@ class ModbusSlave:
 		try:
 			response = self.ser.read(num_bytes)
 		except serial.SerialException:
-			print(
+			console.print(
 				f"{format_text_element(TextElement(value='Failed to read from the slave.', format=TextFormat(color=TextColors.RED, bold=False)))}"
 			)
 			logging.error("Failed to read from the serial port")
@@ -83,7 +87,7 @@ class ModbusSlave:
 		:param show_debug: Show debug information.
 		:return:
 		"""
-		print(f"Listening for incoming data, "
+		console.print(f"Listening for incoming data, "
 			  f"to stop use {format_text_element(
 				  TextElement(value="ctl + c", format=TextFormat(color=TextColors.CYAN, bold=True)))} "
 			  f"or press {format_text_element(
@@ -94,7 +98,7 @@ class ModbusSlave:
 			try:
 				data = self.ser.read(100)
 				if data:
-					print(data)
+					console.print(data)
 					if len(data) < 6:
 						continue
 					if data[0] == self.slave_address:
@@ -104,19 +108,20 @@ class ModbusSlave:
 							num_registers = (data[4] << 8) + data[5]
 							crc = (data[-1] << 8) + data[-2]
 							if crc == calculate_crc(data[:-2]):
-								print(f"We have a request for reading {num_registers} "
-									  f"registers starting from register {register}")
+								console.print(f"We have a request for reading {format_text_element(TextElement(value=num_registers, format=TextFormat(color=TextColors.CYAN)))} "
+									  f"registers starting from register {format_text_element(TextElement(value=register, format=TextFormat(color=TextColors.CYAN)))}")
 								response = b'\x01\x03\x04\x45\xea\x32\x00\xdb\xab'
 								self.ser.write(response)
 							else:
-								print("CRC Error")
+								console.print(f"{format_text_element(TextElement(value='CRC Error', format=TextFormat(color=TextColors.RED, bold=True)))}")
 						else:
-							print("Function code not supported")
+							console.print(f"{format_text_element(TextElement(value='Function code not supported.', format=TextFormat(color=TextColors.RED, bold=True)))}")
 					else:
-						print("Slave address does not match")
+							console.print(
+							f"{format_text_element(TextElement(value='Slave address does not match', format=TextFormat(color=TextColors.RED, bold=True)))}")
 
 			except KeyboardInterrupt:
-				print(f"{format_text_element(TextElement(value="Detected keyboard interrupt, exiting", format=TextFormat(color=TextColors.YELLOW, bold=True)))}")
+				console.print(f"{format_text_element(TextElement(value="Detected keyboard interrupt, exiting", format=TextFormat(color=TextColors.YELLOW, bold=True)))}")
 				raise typer.Exit()
 
 	def analyze_incoming_data(self, data_frame: bytes, show_debug: bool = False) -> tuple[bool, bytes]:
@@ -129,7 +134,7 @@ class ModbusSlave:
 		recv_address = data_frame[0]
 		if recv_address != self.slave_address:
 			if show_debug:
-				print(f"{format_text_element(
+				console.print(f"{format_text_element(
 					TextElement(
 						value='Received data from an unknown address.', 
 						format=TextFormat(color=TextColors.RED, bold=True)

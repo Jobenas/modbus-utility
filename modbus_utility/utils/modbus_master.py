@@ -2,6 +2,7 @@ import logging
 import struct
 import time
 
+from rich.console import Console
 import serial
 import typer
 
@@ -13,6 +14,8 @@ from modbus_utility.utils.console_utils import (
     TextColors,
 )
 from modbus_utility.utils.message_utils import pack_message
+
+console = Console()
 
 
 class ModbusMaster:
@@ -37,7 +40,7 @@ class ModbusMaster:
         try:
             self.ser = initialize_device(port, baudrate, parity, stop_bits, timeout)
         except serial.SerialException:
-            print(f"{format_text_element(
+            console.print(f"{format_text_element(
 				TextElement(
 					value="Failed to initialize serial device", 
 					format=TextFormat(color=TextColors.RED,bold=True)
@@ -57,7 +60,7 @@ class ModbusMaster:
         try:
             self.ser.write(request)
         except serial.SerialException:
-            print(
+            console.print(
                 f"{format_text_element(TextElement(value='Failed to send request.', format=TextFormat(color=TextColors.RED, bold=False)))}"
             )
             logging.error("Failed to write to the serial port")
@@ -73,7 +76,7 @@ class ModbusMaster:
         try:
             response = self.ser.read(num_bytes)
         except serial.SerialException:
-            print(
+            console.print(
                 f"{format_text_element(TextElement(value='Failed to read from the slave.', format=TextFormat(color=TextColors.RED, bold=False)))}"
             )
             logging.error("Failed to read from the serial port")
@@ -188,7 +191,7 @@ class ModbusMaster:
             ):
                 raise Exception("Incomplete response received")
 
-            print(
+            console.print(
                 f"Wrote value {format_text_element(
 				TextElement(
 					value=value,
@@ -209,7 +212,7 @@ class ModbusMaster:
             )
             logging.info(f"Wrote value {value} to register {register}")
         except serial.SerialException:
-            print(
+            console.print(
                 f"{format_text_element(
 				TextElement(
 					value="Failed to write to register. Check the connection and try again.",
@@ -238,7 +241,7 @@ class ModbusMaster:
         request = pack_message(self.slave_address, function_code, start_reg, num_reg)
 
         if show_frame_info:
-            print(
+            console.print(
                 f"[!] Request frame: {format_text_element(TextElement(value=request, format=TextFormat(color=TextColors.GREEN, bold=True)))}"
             )
 
@@ -247,7 +250,7 @@ class ModbusMaster:
         response = self.read_response(5 + 2 * num_reg)
 
         if show_frame_info:
-            print(
+            console.print(
                 f"[!] Response frame: {format_text_element(
 					TextElement(
 						value=response, 

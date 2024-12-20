@@ -1,9 +1,11 @@
 from rich.table import Table
+from rich.console import Console
 import typer
 
 from modbus_utility.utils.console_utils import format_text_element, TextElement, TextFormat, TextColors, generate_table
 from modbus_utility.utils.operation_utils import DeviceConfigType, save_session, load_session
 
+console = Console()
 
 def set_device_config(
 	port: str,
@@ -35,7 +37,7 @@ def set_device_config(
 	}
 
 	save_session(session_data, config_type)
-	print(
+	console.print(
 		f"Selected device at address "
 		f"{format_text_element(
 			TextElement(
@@ -60,17 +62,15 @@ def get_device_config(config_type: DeviceConfigType) -> Table:
 	"""
 	session = load_session(config_type)
 	if session is None:
-		print(
-			f"{format_text_element(
-				TextElement(
-					value='No device selected. Use `master select-device` first.',
-					format=TextFormat(color=TextColors.RED, bold=True)
-				)
-			)}"
-		)
+		console.print(f"{format_text_element(
+			TextElement(
+				value="No device selected. Use 'select-device' first.",
+				format=TextFormat(color=TextColors.RED, bold=True)
+			)
+		)}")
 		raise typer.Exit()
 
-	print(
+	console.print(
 		f"{format_text_element(
 			TextElement(
 				value='Current device configuration: ',

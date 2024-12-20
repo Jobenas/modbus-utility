@@ -1,3 +1,4 @@
+from rich.console import Console
 import typer
 
 from modbus_utility.utils.console_utils import (
@@ -11,13 +12,14 @@ from modbus_utility.utils.operation_utils import load_session, DeviceConfigType
 
 app = typer.Typer()
 
+console = Console()
 
 @app.command()
 def write_register(register: int, value: int):
     """Write value to a register of the selected MODBUS device."""
     session = load_session(DeviceConfigType.master)
     if session is None:
-        print(
+        console.print(
             f"{format_text_element(
             TextElement(
                 value="No device selected. Use 'select-device' first.",
